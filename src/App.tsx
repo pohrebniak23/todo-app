@@ -1,31 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { TodoApp } from './components/TodoApp';
-import { TodoList } from './components/TodoList';
-import { TodosType } from './types/TodosType';
-import { TodosFilter } from './components/TodosFilter';
-import { useLocalStorage } from './hook/useLocalStorage';
-import { deleteTodo, userId, changeTodoStatus, getTodos } from './api/api';
-import { SortBy } from './types/SortBy';
-import { completedCount, notCompletedCount } from './helpers/todos-helper';
+import React, { useState, useEffect } from "react";
+import { TodoApp } from "./components/TodoApp";
+import { TodoList } from "./components/TodoList";
+import { TodosType } from "./types/TodosType";
+import { TodosFilter } from "./components/TodosFilter";
+import { useLocalStorage } from "./hook/useLocalStorage";
+import { deleteTodo, userId, changeTodoStatus, getTodos } from "./api/api";
+import { SortBy } from "./types/SortBy";
+import { completedCount, notCompletedCount } from "./helpers/todos-helper";
 
 export const TodoData = React.createContext<any>({});
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useLocalStorage('todos', []);
+  const [todos, setTodos] = useLocalStorage("todos", []);
   const [toggleStatus, setToggleStatus] = useState(false);
   const [sortBy, setSortBy] = useState(SortBy.All);
 
   useEffect(() => {
-    getTodos(`todos/?userId=${userId}`)
-      .then((data) => {
-        setTodos(data);
-      });
+    getTodos(`todos/?userId=${userId}`).then((data) => {
+      setTodos(data);
+    });
   }, []);
 
   useEffect(() => {
-    const isEveryToggle = todos.every((todo: TodosType) => (
-      todo.completed === true
-    ));
+    const isEveryToggle = todos.every(
+      (todo: TodosType) => todo.completed === true
+    );
 
     if (isEveryToggle) {
       setToggleStatus(true);
@@ -39,24 +38,25 @@ export const App: React.FC = () => {
   const clearCompleted = () => {
     todos.forEach((todo: TodosType) => {
       if (todo.completed === true) {
-        deleteTodo(`todos/${todo.id}`)
-          .then(setTodos(todos.filter((item: TodosType) => (
-            item.completed !== true
-          ))));
+        deleteTodo(`todos/${todo.id}`).then(
+          setTodos(todos.filter((item: TodosType) => item.completed !== true))
+        );
       }
     });
   };
 
   const toggleAll = () => {
-    setTodos((curr: TodosType[]) => curr.map((item: TodosType) => {
-      if (item.completed !== !toggleStatus) {
-        changeTodoStatus(`todos/${item.id}`, !toggleStatus);
+    setTodos((curr: TodosType[]) =>
+      curr.map((item: TodosType) => {
+        if (item.completed !== !toggleStatus) {
+          changeTodoStatus(`todos/${item.id}`, !toggleStatus);
 
-        return { ...item, completed: !toggleStatus };
-      }
+          return { ...item, completed: !toggleStatus };
+        }
 
-      return item;
-    }));
+        return item;
+      })
+    );
 
     setToggleStatus(!toggleStatus);
   };
@@ -84,12 +84,8 @@ export const App: React.FC = () => {
         )}
 
         <TodoData.Provider value={contextValue}>
-          <TodoList
-            items={todos}
-            sortBy={sortBy}
-          />
+          <TodoList items={todos} sortBy={sortBy} />
         </TodoData.Provider>
-
       </section>
 
       {todos.length > 0 && (
@@ -100,19 +96,19 @@ export const App: React.FC = () => {
 
           <TodosFilter sortBy={sortBy} setSortBy={setSortBy} />
 
-          {completedCount(todos) > 0
-            && (
-              <button
-                type="button"
-                className="clear-completed"
-                onClick={() => clearCompleted()}
-              >
-                Clear completed
-              </button>
-            )
-          }
+          {completedCount(todos) > 0 && (
+            <button
+              type="button"
+              className="clear-completed"
+              onClick={() => clearCompleted()}
+            >
+              Clear completed
+            </button>
+          )}
         </footer>
       )}
+
+      <div className="todoapp__author">by Oleksandr Pohrebniak</div>
     </section>
   );
 };
